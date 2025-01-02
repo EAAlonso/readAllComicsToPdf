@@ -4,13 +4,10 @@ from bs4 import BeautifulSoup
 from PIL import Image
 import shutil
 import re
-import tkinter as tk
-from tkinter import messagebox, filedialog
 
-url = "https://readallcomics.com/daring-mystery-comics-2/"
-
-def create_pdf(url):
+def create_pdf(url, progress_callback=None):            
     output_dir = "imagenes"
+    cant_imgs = 0
     os.makedirs(output_dir, exist_ok=True)
 
     response = requests.get(url)
@@ -19,6 +16,11 @@ def create_pdf(url):
         page_title = soup.title.string
         # Buscar todas las etiquetas <img>
         img_tags = soup.find_all('img')
+
+        for img_tag in enumerate(img_tags):
+                cant_imgs += 1
+
+        cant_imgs -= 1
         for index, img_tag in enumerate(img_tags):
             img_url = img_tag.get('src')
             if not img_url or 'logo' in img_url:
@@ -34,6 +36,9 @@ def create_pdf(url):
                 with open(os.path.join(output_dir, img_name), 'wb') as img_file:
                     img_file.write(img_data)
                     print(f"Descargada: {img_name}")
+
+                if progress_callback:
+                    progress_callback(index + 1, cant_imgs)
             except Exception as e:
                 print(f"Error descargando {img_url}: {e}")
     else:
