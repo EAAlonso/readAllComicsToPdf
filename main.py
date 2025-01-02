@@ -13,6 +13,7 @@ os.makedirs(output_dir, exist_ok=True)
 response = requests.get(url)
 if response.status_code == 200:
     soup = BeautifulSoup(response.text, 'html.parser')
+    page_title = soup.title.string
     # Buscar todas las etiquetas <img>
     img_tags = soup.find_all('img')
     for index, img_tag in enumerate(img_tags):
@@ -40,9 +41,14 @@ else:
 # Carpeta donde están las imágenes descargadas
 input_dir = "imagenes"
 # Nombre del archivo PDF de salida
-output_pdf = "imagenes.pdf"
+page_title = page_title.split('|')[0].strip()
+pdf_dir = "Comics"
+output_pdf = os.path.join(pdf_dir,f"{page_title}.pdf")
 
-# Listar los archivos de imagen en la carpeta
+if not os.path.exists(pdf_dir):
+    os.makedirs(pdf_dir)
+    print("Carpeta creada")
+
 image_files = [f for f in os.listdir(input_dir) if f.endswith(('.png', '.jpg', '.jpeg'))]
 
 def extract_number(filename):
