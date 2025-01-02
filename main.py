@@ -2,6 +2,8 @@ import os
 import requests
 from bs4 import BeautifulSoup
 from PIL import Image
+import shutil
+import re
 
 url = "https://readallcomics.com/daring-mystery-comics-2/"
 
@@ -43,32 +45,37 @@ output_pdf = "imagenes.pdf"
 # Listar los archivos de imagen en la carpeta
 image_files = [f for f in os.listdir(input_dir) if f.endswith(('.png', '.jpg', '.jpeg'))]
 
-# Verificar si hay imágenes
+def extract_number(filename):
+    match = re.search(r'\d+', filename)
+    return int(match.group()) if match else 0
+
 if not image_files:
     print("No se encontraron imágenes en la carpeta.")
 else:
-    # Ordenar las imágenes por nombre (opcional)
-    image_files.sort()
+    image_files.sort(key=extract_number)
     
-    # Abrir las imágenes
     images = []
     for file in image_files:
         filepath = os.path.join(input_dir, file)
         try:
             img = Image.open(filepath)
-            # Convertir a modo RGB (necesario para PDF)
             img = img.convert('RGB')
             images.append(img)
         except Exception as e:
             print(f"Error procesando {file}: {e}")
 
     if images:
-        # Guardar todas las imágenes en un único archivo PDF
         images[0].save(
             output_pdf,
             save_all=True,
-            append_images=images[1:]  # Las demás páginas
+            append_images=images[1:]
         )
         print(f"PDF generado exitosamente: {output_pdf}")
+        try:
+            shutil.rmtree(input_dir)
+            print(f"Carpeta '{input_dir}' eliminada.")
+        except Exception as ex:
+            print(f"Error eliminado la carpeta {input_dir}: {e}")
+
     else:
         print("No se pudieron procesar imágenes para generar el PDF.")
