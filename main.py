@@ -1,6 +1,7 @@
 import os
 import requests
 from bs4 import BeautifulSoup
+from PIL import Image
 
 url = "https://readallcomics.com/daring-mystery-comics-2/"
 
@@ -31,3 +32,43 @@ if response.status_code == 200:
             print(f"Error descargando {img_url}: {e}")
 else:
     print(f"Error al acceder a la página: {response.status_code}")
+
+
+
+# Carpeta donde están las imágenes descargadas
+input_dir = "imagenes"
+# Nombre del archivo PDF de salida
+output_pdf = "imagenes.pdf"
+
+# Listar los archivos de imagen en la carpeta
+image_files = [f for f in os.listdir(input_dir) if f.endswith(('.png', '.jpg', '.jpeg'))]
+
+# Verificar si hay imágenes
+if not image_files:
+    print("No se encontraron imágenes en la carpeta.")
+else:
+    # Ordenar las imágenes por nombre (opcional)
+    image_files.sort()
+    
+    # Abrir las imágenes
+    images = []
+    for file in image_files:
+        filepath = os.path.join(input_dir, file)
+        try:
+            img = Image.open(filepath)
+            # Convertir a modo RGB (necesario para PDF)
+            img = img.convert('RGB')
+            images.append(img)
+        except Exception as e:
+            print(f"Error procesando {file}: {e}")
+
+    if images:
+        # Guardar todas las imágenes en un único archivo PDF
+        images[0].save(
+            output_pdf,
+            save_all=True,
+            append_images=images[1:]  # Las demás páginas
+        )
+        print(f"PDF generado exitosamente: {output_pdf}")
+    else:
+        print("No se pudieron procesar imágenes para generar el PDF.")
