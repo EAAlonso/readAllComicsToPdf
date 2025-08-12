@@ -67,6 +67,11 @@ def create_pdf(url, progress_callback=None):
         print("No se encontraron imágenes en la carpeta.")
     else:
         image_files.sort(key=extract_number)
+
+        if len(image_files) > 2:
+            image_files = image_files[:-2]
+        else:
+            print("Hay menos de 3 imágenes; no se quitarán las últimas 2.")
         
         images = []
         for file in image_files:
