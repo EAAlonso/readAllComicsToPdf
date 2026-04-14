@@ -7,6 +7,7 @@ import threading
 # Función que actualizará la barra de progreso
 def update_progress(current, total):
     progress_bar["value"] = (current / total) * 100
+    progress_label.config(text=f"Descargando {current} de {total}...")
     root.update_idletasks()
 
 def run_task(url):
